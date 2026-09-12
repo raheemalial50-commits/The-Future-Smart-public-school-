@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Students • Future Smart Public School</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="sidebar-overlay" class="overlay" onclick="toggleSidebar()"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+  <div class="main-content">
+    <header id="topbar" class="topbar"></header>
+    <main style="padding:1.5rem;">
+      <div class="card" style="padding:1.25rem;">
+        <div style="display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <input type="text" id="searchInput" class="form-input" placeholder="Search by name, admission no, father..." style="max-width:300px;" oninput="renderTable()" />
+          <button class="btn btn-primary" onclick="openStudentModal()">+ Add Student</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Admission No</th>
+                <th>Name</th>
+                <th>Father Name</th>
+                <th>Class</th>
+                <th>Roll</th>
+                <th>Gender</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="studentTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div id="studentModal" class="modal-overlay">
+    <div class="modal">
+      <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--gray-200);display:flex;justify-content:space-between;align-items:center;">
+        <h3 id="modalTitle" style="font-weight:700;color:var(--navy);">Add Student</h3>
+        <button onclick="closeStudentModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--gray-600);">&times;</button>
+      </div>
+      <form id="studentForm" style="padding:1.5rem;">
+        <input type="hidden" id="editId" />
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+          <div>
+            <label class="form-label">Full Name *</label>
+            <input type="text" id="sName" class="form-input" required />
+          </div>
+          <div>
+            <label class="form-label">Father's Name *</label>
+            <input type="text" id="sFather" class="form-input" required />
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;">
+          <div>
+            <label class="form-label">Class *</label>
+            <select id="sClass" class="form-input" required>
+              <option value="">Select</option>
+              <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Section *</label>
+            <select id="sSection" class="form-input" required>
+              <option value="">Select</option>
+              <option>A</option><option>B</option><option>C</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Roll No *</label>
+            <input type="text" id="sRoll" class="form-input" required />
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+          <div>
+            <label class="form-label">Gender *</label>
+            <select id="sGender" class="form-input" required>
+              <option value="">Select</option>
+              <option>Male</option><option>Female</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Phone</label>
+            <input type="text" id="sPhone" class="form-input" placeholder="03xxxxxxxxx" />
+          </div>
+        </div>
+        <div style="margin-bottom:1.25rem;">
+          <label class="form-label">Admission Number</label>
+          <input type="text" id="sAdmission" class="form-input" placeholder="Auto if empty" />
+        </div>
+        <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+          <button type="button" class="btn btn-outline" onclick="closeStudentModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Student</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    initPage('students', 'Students', 'Manage all students • Full CRUD');
+
+    function renderTable() {
+      const q = (document.getElementById('searchInput').value || '').toLowerCase();
+      const list = Storage.get('students').filter(s =>
+        s.name.toLowerCase().includes(q) ||
+        (s.admissionNo || '').toLowerCase().includes(q) ||
+        (s.fatherName || '').toLowerCase().includes(q)
+      );
+      const tbody = document.getElementById('studentTable');
+      if (!list.length) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:2.5rem;color:var(--gray-600);">
+          <div style="font-size:2rem;margin-bottom:0.5rem;">👨‍🎓</div>
+          No students found<br>
+          <button class="btn btn-primary" style="margin-top:1rem;" onclick="openStudentModal()">+ Add Student</button>
+        </td></tr>`;
+        return;
+      }
+      tbody.innerHTML = list.map(s => `
+        <tr>
+          <td style="font-weight:600;">${s.admissionNo}</td>
+          <td>${s.name}</td>
+          <td>${s.fatherName || '-'}</td>
+          <td>${s.class}-${s.section}</td>
+          <td>${s.rollNo}</td>
+          <td>${s.gender}</td>
+          <td>${s.phone || '-'}</td>
+          <td><span class="badge badge-present">${s.status || 'Active'}</span></td>
+          <td>
+            <button class="btn btn-outline" style="padding:0.3rem 0.6rem;font-size:0.8rem;" onclick="editStudent('${s.id}')">Edit</button>
+            <button class="btn btn-danger" style="padding:0.3rem 0.6rem;font-size:0.8rem;margin-left:0.3rem;" onclick="deleteStudent('${s.id}')">Del</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openStudentModal(id = null) {
+      document.getElementById('studentModal').classList.add('active');
+      document.getElementById('studentForm').reset();
+      document.getElementById('editId').value = '';
+      document.getElementById('modalTitle').textContent = 'Add Student';
+      if (id) {
+        const s = Storage.get('students').find(x => x.id === id);
+        if (s) {
+          document.getElementById('editId').value = s.id;
+          document.getElementById('modalTitle').textContent = 'Edit Student';
+          document.getElementById('sName').value = s.name;
+          document.getElementById('sFather').value = s.fatherName || '';
+          document.getElementById('sClass').value = s.class;
+          document.getElementById('sSection').value = s.section;
+          document.getElementById('sRoll').value = s.rollNo;
+          document.getElementById('sGender').value = s.gender;
+          document.getElementById('sPhone').value = s.phone || '';
+          document.getElementById('sAdmission').value = s.admissionNo;
+        }
+      }
+    }
+
+    function closeStudentModal() {
+      document.getElementById('studentModal').classList.remove('active');
+    }
+
+    function editStudent(id) { openStudentModal(id); }
+
+    function deleteStudent(id) {
+      if (!confirm('Are you sure you want to delete this student?')) return;
+      let list = Storage.get('students');
+      list = list.filter(s => s.id !== id);
+      Storage.set('students', list);
+      toast('Student deleted', 'success');
+      renderTable();
+    }
+
+    document.getElementById('studentForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const id = document.getElementById('editId').value;
+      const data = {
+        name: document.getElementById('sName').value.trim(),
+        fatherName: document.getElementById('sFather').value.trim(),
+        class: document.getElementById('sClass').value,
+        section: document.getElementById('sSection').value,
+        rollNo: document.getElementById('sRoll').value.trim(),
+        gender: document.getElementById('sGender').value,
+        phone: document.getElementById('sPhone').value.trim(),
+        admissionNo: document.getElementById('sAdmission').value.trim() || ('FS-' + new Date().getFullYear() + '-' + Math.floor(Math.random()*900+100)),
+        status: 'Active'
+      };
+
+      let list = Storage.get('students');
+      if (id) {
+        const idx = list.findIndex(s => s.id === id);
+        if (idx > -1) list[idx] = { ...list[idx], ...data };
+        toast('Student updated', 'success');
+      } else {
+        data.id = Storage.generateId('STU');
+        list.push(data);
+        toast('Student added successfully', 'success');
+      }
+      Storage.set('students', list);
+      closeStudentModal();
+      renderTable();
+    });
+
+    renderTable();
+  </script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reports • Future Smart Public School</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="sidebar-overlay" class="overlay" onclick="toggleSidebar()"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+  <div class="main-content">
+    <header id="topbar" class="topbar"></header>
+    <main style="padding:1.5rem;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.25rem;">
+        <div class="card" style="padding:1.5rem;cursor:pointer;" onclick="toast('Attendance report ready for expansion','info')">
+          <div style="font-size:1.75rem;margin-bottom:0.5rem;">📷</div>
+          <h3 style="font-weight:700;color:var(--navy);">Attendance Report</h3>
+          <p style="font-size:0.85rem;color:var(--gray-600);margin-top:0.35rem;">Daily & monthly attendance</p>
+        </div>
+        <div class="card" style="padding:1.5rem;cursor:pointer;" onclick="toast('Fee report ready for expansion','info')">
+          <div style="font-size:1.75rem;margin-bottom:0.5rem;">💰</div>
+          <h3 style="font-weight:700;color:var(--navy);">Fee Report</h3>
+          <p style="font-size:0.85rem;color:var(--gray-600);margin-top:0.35rem;">Collection & pending</p>
+        </div>
+        <div class="card" style="padding:1.5rem;cursor:pointer;" onclick="toast('Student report ready for expansion','info')">
+          <div style="font-size:1.75rem;margin-bottom:0.5rem;">👨‍🎓</div>
+          <h3 style="font-weight:700;color:var(--navy);">Student Report</h3>
+          <p style="font-size:0.85rem;color:var(--gray-600);margin-top:0.35rem;">Class-wise lists</p>
+        </div>
+        <div class="card" style="padding:1.5rem;cursor:pointer;" onclick="window.print()">
+          <div style="font-size:1.75rem;margin-bottom:0.5rem;">🖨️</div>
+          <h3 style="font-weight:700;color:var(--navy);">Print Reports</h3>
+          <p style="font-size:0.85rem;color:var(--gray-600);margin-top:0.35rem;">Printer friendly</p>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>initPage('reports', 'Reports', 'Attendance, fees, students & more');</script>
+</body>
+</html>

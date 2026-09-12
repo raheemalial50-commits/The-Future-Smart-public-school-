@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendance • Future Smart Public School</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="sidebar-overlay" class="overlay" onclick="toggleSidebar()"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <div class="main-content">
+    <header id="topbar" class="topbar"></header>
+
+    <main style="padding:1.5rem;max-width:900px;margin:0 auto;">
+      <!-- Mode Selection -->
+      <div id="modeSelect" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;">
+        <button onclick="startFace()" class="card" style="padding:2rem;text-align:left;cursor:pointer;border:2px solid transparent;">
+          <div style="width:60px;height:60px;background:#dbeafe;border-radius:1rem;display:flex;align-items:center;justify-content:center;font-size:1.75rem;margin-bottom:1rem;">📷</div>
+          <h3 style="font-size:1.2rem;font-weight:700;color:var(--navy);margin-bottom:0.5rem;">Face Recognition</h3>
+          <p style="font-size:0.9rem;color:var(--gray-600);">Use camera to scan face and mark attendance as Present.</p>
+        </button>
+
+        <button onclick="startFingerprint()" class="card" style="padding:2rem;text-align:left;cursor:pointer;border:2px solid transparent;">
+          <div style="width:60px;height:60px;background:#f3e8ff;border-radius:1rem;display:flex;align-items:center;justify-content:center;font-size:1.75rem;margin-bottom:1rem;">👆</div>
+          <h3 style="font-size:1.2rem;font-weight:700;color:var(--navy);margin-bottom:0.5rem;">Fingerprint / Figure Password</h3>
+          <p style="font-size:0.9rem;color:var(--gray-600);">Place finger on scanner to mark attendance as Present.</p>
+        </button>
+      </div>
+
+      <!-- Scanning UI -->
+      <div id="scanUI" style="display:none;" class="card">
+        <div style="background:var(--navy);color:white;padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;border-radius:1rem 1rem 0 0;">
+          <h3 id="scanTitle" style="font-weight:700;">Scanning...</h3>
+          <button onclick="resetScan()" class="btn" style="background:rgba(255,255,255,0.2);color:white;padding:0.4rem 0.9rem;">Cancel</button>
+        </div>
+        <div style="padding:2rem;">
+          <!-- Camera -->
+          <div id="cameraArea" style="display:none;">
+            <div class="camera-box" style="max-width:480px;margin:0 auto 1.5rem;">
+              <video id="video" autoplay playsinline muted></video>
+              <div id="scanFrame" class="scan-frame" style="display:none;"></div>
+            </div>
+          </div>
+
+          <!-- Fingerprint visual -->
+          <div id="fingerArea" style="display:none;text-align:center;padding:2rem 0;">
+            <div id="fingerIcon" style="width:120px;height:120px;margin:0 auto 1rem;border-radius:50%;background:linear-gradient(135deg,#e9d5ff,#c4b5fd);display:flex;align-items:center;justify-content:center;font-size:3.5rem;">👆</div>
+            <p id="fingerMsg" style="color:var(--gray-600);">Place your finger on the scanner...</p>
+          </div>
+
+          <!-- Result -->
+          <div id="resultArea" style="display:none;text-align:center;">
+            <div id="resultIcon" style="width:80px;height:80px;margin:0 auto 1rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;"></div>
+            <h3 id="resultStatus" style="font-size:1.75rem;font-weight:800;margin-bottom:0.5rem;"></h3>
+            <p id="resultStudent" style="font-size:1.1rem;font-weight:600;color:var(--navy);"></p>
+            <p id="resultMsg" style="font-size:0.9rem;color:var(--gray-600);margin-top:0.35rem;"></p>
+            <button onclick="resetScan()" class="btn btn-primary" style="margin-top:1.5rem;">Mark Next Student</button>
+          </div>
+
+          <p id="statusMsg" style="text-align:center;color:var(--gray-600);margin-top:1rem;"></p>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div style="margin-top:2rem;background:#eff6ff;border:1px solid #bfdbfe;border-radius:1rem;padding:1.25rem;font-size:0.9rem;color:#1e40af;">
+        <strong>How Attendance Works</strong>
+        <ul style="margin-top:0.5rem;padding-left:1.25rem;">
+          <li><strong>Present</strong> — Marked only after successful Face Recognition or Fingerprint verification.</li>
+          <li><strong>Leave</strong> — Student/Parent must submit leave application with supporting photo.</li>
+          <li><strong>Absent</strong> — Automatically marked if student is not present and has no approved leave.</li>
+        </ul>
+      </div>
+
+      <!-- Today's List -->
+      <div class="card" style="margin-top:1.5rem;padding:1.5rem;">
+        <h3 style="font-weight:700;color:var(--navy);margin-bottom:1rem;">Today's Attendance Log</h3>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Class</th>
+                <th>Status</th>
+                <th>Method</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody id="attTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    initPage('attendance', 'Attendance System', 'Mark presence using Face Recognition or Fingerprint');
+
+    let stream = null;
+    const students = Storage.get('students');
+
+    function startFace() {
+      document.getElementById('modeSelect').style.display = 'none';
+      document.getElementById('scanUI').style.display = 'block';
+      document.getElementById('scanTitle').textContent = 'Face Recognition Attendance';
+      document.getElementById('cameraArea').style.display = 'block';
+      document.getElementById('fingerArea').style.display = 'none';
+      document.getElementById('resultArea').style.display = 'none';
+      document.getElementById('statusMsg').textContent = 'Starting camera...';
+
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(s => {
+          stream = s;
+          const video = document.getElementById('video');
+          video.srcObject = stream;
+          document.getElementById('scanFrame').style.display = 'block';
+          document.getElementById('statusMsg').textContent = 'Looking for face... Please look at the camera';
+
+          // Simulate recognition after 2.8s
+          setTimeout(() => {
+            markPresent('Face');
+          }, 2800);
+        })
+        .catch(() => {
+          document.getElementById('statusMsg').textContent = 'Camera access denied. Please allow camera permission.';
+        });
+    }
+
+    function startFingerprint() {
+      document.getElementById('modeSelect').style.display = 'none';
+      document.getElementById('scanUI').style.display = 'block';
+      document.getElementById('scanTitle').textContent = 'Fingerprint Attendance';
+      document.getElementById('cameraArea').style.display = 'none';
+      document.getElementById('fingerArea').style.display = 'block';
+      document.getElementById('resultArea').style.display = 'none';
+      document.getElementById('statusMsg').textContent = '';
+      document.getElementById('fingerMsg').textContent = 'Place your finger on the scanner...';
+      document.getElementById('fingerIcon').style.animation = 'pulse 1.5s infinite';
+
+      setTimeout(() => {
+        markPresent('Fingerprint');
+      }, 2200);
+    }
+
+    function markPresent(method) {
+      // Pick a random student for simulation
+      const student = students[Math.floor(Math.random() * students.length)];
+      const today = new Date().toISOString().split('T')[0];
+
+      // Save attendance
+      const att = Storage.get('attendance');
+      // Remove existing for same student+date
+      const filtered = att.filter(a => !(a.studentId === student.id && a.date === today));
+      filtered.push({
+        id: Storage.generateId('ATT'),
+        studentId: student.id,
+        date: today,
+        status: 'Present',
+        method: method,
+        markedBy: Auth.getCurrentUser()?.name || 'System',
+        time: new Date().toLocaleTimeString()
+      });
+      Storage.set('attendance', filtered);
+
+      // Stop camera
+      if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+        stream = null;
+      }
+
+      // Show result
+      document.getElementById('cameraArea').style.display = 'none';
+      document.getElementById('fingerArea').style.display = 'none';
+      document.getElementById('resultArea').style.display = 'block';
+      document.getElementById('statusMsg').textContent = '';
+
+      document.getElementById('resultIcon').style.background = '#dcfce7';
+      document.getElementById('resultIcon').textContent = '✓';
+      document.getElementById('resultStatus').textContent = 'PRESENT';
+      document.getElementById('resultStatus').style.color = '#16a34a';
+      document.getElementById('resultStudent').textContent = `${student.name} • Class ${student.class}-${student.section}`;
+      document.getElementById('resultMsg').textContent = `Attendance marked via ${method}`;
+
+      toast(`Attendance marked for ${student.name}`, 'success');
+      loadTodayLog();
+    }
+
+    function resetScan() {
+      if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+        stream = null;
+      }
+      document.getElementById('modeSelect').style.display = 'grid';
+      document.getElementById('scanUI').style.display = 'none';
+      document.getElementById('scanFrame').style.display = 'none';
+    }
+
+    function loadTodayLog() {
+      const today = new Date().toISOString().split('T')[0];
+      const att = Storage.get('attendance').filter(a => a.date === today);
+      const tbody = document.getElementById('attTable');
+
+      if (!att.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-600);padding:2rem;">No attendance marked today yet</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = att.map(a => {
+        const stu = students.find(s => s.id === a.studentId) || {};
+        return `
+          <tr>
+            <td style="font-weight:600;">${stu.name || a.studentId}</td>
+            <td>${stu.class || '-'}-${stu.section || ''}</td>
+            <td><span class="badge badge-${a.status.toLowerCase()}">${a.status}</span></td>
+            <td>${a.method || '-'}</td>
+            <td>${a.time || '-'}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    loadTodayLog();
+  </script>
+</body>
+</html>

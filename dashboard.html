@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard • Future Smart Public School</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div id="sidebar-overlay" class="overlay" onclick="toggleSidebar()"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <div class="main-content">
+    <header id="topbar" class="topbar"></header>
+
+    <main style="padding:1.5rem;">
+      <!-- Stats -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.25rem;margin-bottom:1.5rem;" id="statsGrid">
+        <!-- Filled by JS -->
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr;gap:1.5rem;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.5rem;">
+          <!-- Attendance Chart -->
+          <div class="card" style="padding:1.5rem;">
+            <h3 style="font-weight:700;color:var(--navy);margin-bottom:1rem;">Today's Attendance</h3>
+            <canvas id="attendanceChart" height="200"></canvas>
+          </div>
+
+          <!-- Gender Chart -->
+          <div class="card" style="padding:1.5rem;">
+            <h3 style="font-weight:700;color:var(--navy);margin-bottom:1rem;">Students by Gender</h3>
+            <canvas id="genderChart" height="200"></canvas>
+          </div>
+        </div>
+
+        <!-- Recent Leaves + Notices -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;">
+          <div class="card" style="padding:1.5rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+              <h3 style="font-weight:700;color:var(--navy);">Recent Leave Requests</h3>
+              <a href="leave.html" style="font-size:0.8rem;color:var(--gold);font-weight:600;text-decoration:none;">View all</a>
+            </div>
+            <div id="recentLeaves"></div>
+          </div>
+
+          <div class="card" style="padding:1.5rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+              <h3 style="font-weight:700;color:var(--navy);">Latest Notices</h3>
+              <a href="#" style="font-size:0.8rem;color:var(--gold);font-weight:600;text-decoration:none;">View all</a>
+            </div>
+            <div id="recentNotices"></div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card" style="padding:1.5rem;">
+          <h3 style="font-weight:700;color:var(--navy);margin-bottom:1rem;">Quick Actions</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;">
+            <a href="attendance.html" class="btn btn-primary" style="flex-direction:column;padding:1.25rem;gap:0.5rem;">
+              <span style="font-size:1.5rem;">📷</span>
+              <span>Mark Attendance</span>
+            </a>
+            <a href="leave.html" class="btn btn-gold" style="flex-direction:column;padding:1.25rem;gap:0.5rem;">
+              <span style="font-size:1.5rem;">📝</span>
+              <span>Leave Requests</span>
+            </a>
+            <a href="students.html" class="btn btn-outline" style="flex-direction:column;padding:1.25rem;gap:0.5rem;">
+              <span style="font-size:1.5rem;">👨‍🎓</span>
+              <span>Students</span>
+            </a>
+            <a href="fees.html" class="btn btn-outline" style="flex-direction:column;padding:1.25rem;gap:0.5rem;">
+              <span style="font-size:1.5rem;">💰</span>
+              <span>Fees</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    initPage('dashboard', 'Dashboard', 'Welcome back • School overview');
+
+    // Stats
+    const students = Storage.get('students');
+    const teachers = Storage.get('teachers');
+    const attendance = Storage.get('attendance');
+    const today = new Date().toISOString().split('T')[0];
+    const todayAtt = attendance.filter(a => a.date === today);
+
+    const present = todayAtt.filter(a => a.status === 'Present').length;
+    const absent = todayAtt.filter(a => a.status === 'Absent').length;
+    const leave = todayAtt.filter(a => a.status === 'Leave').length;
+
+    document.getElementById('statsGrid').innerHTML = `
+      <div class="card stat-card">
+        <div style="font-size:0.85rem;color:var(--gray-600);font-weight:500;">Total Students</div>
+        <div class="stat-value">${students.length}</div>
+        <div style="font-size:0.75rem;color:var(--gray-600);margin-top:0.25rem;">Active this session</div>
+      </div>
+      <div class="card stat-card">
+        <div style="font-size:0.85rem;color:var(--gray-600);font-weight:500;">Present Today</div>
+        <div class="stat-value" style="color:var(--success);">${present}</div>
+        <div style="font-size:0.75rem;color:var(--gray-600);margin-top:0.25rem;">Face / Fingerprint</div>
+      </div>
+      <div class="card stat-card">
+        <div style="font-size:0.85rem;color:var(--gray-600);font-weight:500;">Absent Today</div>
+        <div class="stat-value" style="color:var(--danger);">${absent}</div>
+        <div style="font-size:0.75rem;color:var(--gray-600);margin-top:0.25rem;">No leave applied</div>
+      </div>
+      <div class="card stat-card">
+        <div style="font-size:0.85rem;color:var(--gray-600);font-weight:500;">On Leave</div>
+        <div class="stat-value" style="color:var(--warning);">${leave}</div>
+        <div style="font-size:0.75rem;color:var(--gray-600);margin-top:0.25rem;">Approved leaves</div>
+      </div>
+      <div class="card stat-card">
+        <div style="font-size:0.85rem;color:var(--gray-600);font-weight:500;">Total Teachers</div>
+        <div class="stat-value">${teachers.length}</div>
+        <div style="font-size:0.75rem;color:var(--gray-600);margin-top:0.25rem;">Teaching staff</div>
+      </div>
+    `;
+
+    // Attendance Chart
+    new Chart(document.getElementById('attendanceChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Present', 'Absent', 'Leave'],
+        datasets: [{
+          data: [present || 1, absent || 0, leave || 0],
+          backgroundColor: ['#16a34a', '#dc2626', '#d97706'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' } }
+      }
+    });
+
+    // Gender Chart
+    const male = students.filter(s => s.gender === 'Male').length;
+    const female = students.filter(s => s.gender === 'Female').length;
+    new Chart(document.getElementById('genderChart'), {
+      type: 'pie',
+      data: {
+        labels: ['Boys', 'Girls'],
+        datasets: [{
+          data: [male, female],
+          backgroundColor: ['#0A1F44', '#D4A017'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' } }
+      }
+    });
+
+    // Recent Leaves
+    const leaves = Storage.get('leaves').slice(0, 4);
+    document.getElementById('recentLeaves').innerHTML = leaves.length ? leaves.map(l => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem;background:var(--gray-50);border-radius:0.75rem;margin-bottom:0.5rem;">
+        <div>
+          <div style="font-weight:600;font-size:0.9rem;">${l.applicant}</div>
+          <div style="font-size:0.75rem;color:var(--gray-600);">${l.class} • ${l.reason}</div>
+        </div>
+        <span class="badge badge-${l.status.toLowerCase()}">${l.status}</span>
+      </div>
+    `).join('') : '<p style="color:var(--gray-600);font-size:0.9rem;">No leave requests</p>';
+
+    // Notices
+    const notices = Storage.get('notices').slice(0, 4);
+    document.getElementById('recentNotices').innerHTML = notices.map(n => `
+      <div style="padding:0.75rem;background:var(--gray-50);border-radius:0.75rem;margin-bottom:0.5rem;">
+        <div style="font-weight:600;font-size:0.9rem;">${n.title}</div>
+        <div style="font-size:0.75rem;color:var(--gray-600);margin-top:0.2rem;">${formatDate(n.date)} • ${n.audience}</div>
+      </div>
+    `).join('');
+  </script>
+</body>
+</html>

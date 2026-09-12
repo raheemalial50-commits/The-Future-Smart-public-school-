@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Students • Future Smart Public School</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="sidebar-overlay" class="overlay" onclick="toggleSidebar()"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+  <div class="main-content">
+    <header id="topbar" class="topbar"></header>
+    <main style="padding:1.5rem;">
+      <div class="card" style="padding:1.25rem;">
+        <div style="display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <input type="text" id="searchInput" class="form-input" placeholder="Search students..." style="max-width:280px;" oninput="renderTable()" />
+          <button class="btn btn-primary" onclick="toast('Add Student form can be extended','info')">+ Add Student</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Admission No</th>
+                <th>Name</th>
+                <th>Father Name</th>
+                <th>Class</th>
+                <th>Roll</th>
+                <th>Gender</th>
+                <th>Phone</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="studentTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    initPage('students', 'Students', 'Manage all students');
+    function renderTable() {
+      const q = (document.getElementById('searchInput').value || '').toLowerCase();
+      const list = Storage.get('students').filter(s => 
+        s.name.toLowerCase().includes(q) || s.admissionNo.toLowerCase().includes(q) || (s.fatherName||'').toLowerCase().includes(q)
+      );
+      document.getElementById('studentTable').innerHTML = list.map(s => `
+        <tr>
+          <td style="font-weight:600;">${s.admissionNo}</td>
+          <td>${s.name}</td>
+          <td>${s.fatherName || '-'}</td>
+          <td>${s.class}-${s.section}</td>
+          <td>${s.rollNo}</td>
+          <td>${s.gender}</td>
+          <td>${s.phone || '-'}</td>
+          <td><span class="badge badge-present">${s.status}</span></td>
+        </tr>
+      `).join('') || '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--gray-600);">No students found</td></tr>';
+    }
+    renderTable();
+  </script>
+</body>
+</html>

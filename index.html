@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login • THE FUTURE SMART PUBLIC SCHOOL</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body { background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%); min-height: 100vh; display: flex; flex-direction: column; }
+    .login-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+    .login-card { background: white; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(10,31,68,0.15); overflow: hidden; width: 100%; max-width: 920px; display: grid; grid-template-columns: 1fr; }
+    @media (min-width: 768px) { .login-card { grid-template-columns: 1fr 1fr; } }
+    .login-brand { background: var(--navy); color: white; padding: 2.5rem; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+    .login-form-side { padding: 2.5rem; }
+  </style>
+</head>
+<body>
+  <div class="login-wrapper">
+    <div class="login-card">
+      <!-- Brand Side -->
+      <div class="login-brand">
+        <div class="logo-circle" style="width:80px;height:80px;font-size:1.75rem;margin-bottom:1.25rem;">FS</div>
+        <h1 style="font-size:1.5rem;font-weight:800;letter-spacing:0.02em;">THE FUTURE SMART</h1>
+        <p style="color:var(--gold);font-size:0.95rem;margin-top:0.25rem;">PUBLIC SCHOOL</p>
+        <p style="margin-top:1.5rem;opacity:0.85;font-size:0.95rem;">Learn Today • Lead Tomorrow</p>
+        <div style="margin-top:2rem;display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;">
+          <span style="background:rgba(255,255,255,0.15);padding:0.35rem 0.75rem;border-radius:9999px;font-size:0.75rem;">📷 Face Attendance</span>
+          <span style="background:rgba(255,255,255,0.15);padding:0.35rem 0.75rem;border-radius:9999px;font-size:0.75rem;">👆 Fingerprint</span>
+          <span style="background:rgba(255,255,255,0.15);padding:0.35rem 0.75rem;border-radius:9999px;font-size:0.75rem;">📝 Leave + Photo</span>
+        </div>
+      </div>
+
+      <!-- Form Side -->
+      <div class="login-form-side">
+        <h2 style="font-size:1.4rem;font-weight:700;color:var(--navy);">Sign In</h2>
+        <p style="color:var(--gray-600);font-size:0.9rem;margin-top:0.35rem;margin-bottom:1.75rem;">Access the School Management Portal</p>
+
+        <form id="loginForm">
+          <div style="margin-bottom:1.1rem;">
+            <label class="form-label">Username or Email</label>
+            <input type="text" id="username" class="form-input" placeholder="Enter username" required autocomplete="username" />
+          </div>
+          <div style="margin-bottom:1.1rem;">
+            <label class="form-label">Password</label>
+            <div style="position:relative;">
+              <input type="password" id="password" class="form-input" placeholder="••••••••" required autocomplete="current-password" />
+              <button type="button" id="togglePass" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-600);">👁</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+            <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.875rem;cursor:pointer;">
+              <input type="checkbox" id="remember" /> Remember me
+            </label>
+            <a href="#" style="font-size:0.875rem;color:var(--gold);text-decoration:none;font-weight:500;">Forgot password?</a>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;padding:0.85rem;font-size:1rem;">
+            Sign In to Portal
+          </button>
+        </form>
+
+        <div style="margin-top:1.75rem;padding-top:1.25rem;border-top:1px solid var(--gray-200);text-align:center;">
+          <p style="font-size:0.8rem;color:var(--gray-600);">
+            Support: 
+            <a href="https://wa.me/923304886710" target="_blank" style="color:#16a34a;font-weight:600;text-decoration:none;">
+              WhatsApp 0330-4886710
+            </a>
+          </p>
+          <div style="margin-top:1rem;font-size:0.75rem;color:var(--gray-600);background:var(--gray-50);padding:0.75rem;border-radius:0.75rem;">
+            <strong>Sample Logins:</strong><br>
+            admin / admin123 &nbsp;|&nbsp; teacher / teacher123<br>
+            principal / principal123 &nbsp;|&nbsp; accountant / account123
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Redirect if already logged in
+    if (Auth.isLoggedIn()) {
+      window.location.href = 'dashboard.html';
+    }
+
+    document.getElementById('togglePass').addEventListener('click', function() {
+      const input = document.getElementById('password');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const result = Auth.login(username, password);
+      if (result.success) {
+        window.location.href = 'dashboard.html';
+      } else {
+        alert(result.message);
+      }
+    });
+  </script>
+</body>
+</html>

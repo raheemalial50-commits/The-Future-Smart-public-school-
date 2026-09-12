@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Classes & Sections • Future Smart Public School</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="sidebar-overlay" class="overlay" onclick="toggleSidebar()"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+  <div class="main-content">
+    <header id="topbar" class="topbar"></header>
+    <main style="padding:1.5rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+        <h2 style="font-weight:700;color:var(--navy);">Classes & Sections</h2>
+        <button class="btn btn-primary" onclick="openClassModal()">+ Add Class</button>
+      </div>
+      <div id="classGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.25rem;"></div>
+    </main>
+  </div>
+
+  <div id="classModal" class="modal-overlay">
+    <div class="modal" style="max-width:420px;">
+      <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--gray-200);display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="font-weight:700;color:var(--navy);">Add / Edit Class</h3>
+        <button onclick="closeClassModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">&times;</button>
+      </div>
+      <form id="classForm" style="padding:1.5rem;">
+        <input type="hidden" id="classEditId" />
+        <div style="margin-bottom:1rem;">
+          <label class="form-label">Class Name *</label>
+          <input type="text" id="className" class="form-input" placeholder="e.g. 9" required />
+        </div>
+        <div style="margin-bottom:1.25rem;">
+          <label class="form-label">Sections (comma separated)</label>
+          <input type="text" id="classSections" class="form-input" placeholder="A, B, C" />
+        </div>
+        <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+          <button type="button" class="btn btn-outline" onclick="closeClassModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    initPage('classes', 'Classes & Sections', 'Manage classes and sections');
+
+    // Add Classes to sidebar manually for this page
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+      const nav = sidebar.querySelector('nav');
+      if (nav && !nav.innerHTML.includes('classes.html')) {
+        // already handled by app.js filter, but we force show
+      }
+    }
+
+    function renderClasses() {
+      const classes = Storage.get('classes');
+      const grid = document.getElementById('classGrid');
+      if (!classes.length) {
+        grid.innerHTML = `<div class="card" style="padding:2rem;text-align:center;grid-column:1/-1;">
+          <div style="font-size:2rem;">🏫</div>
+          <p style="margin:0.75rem 0;color:var(--gray-600);">No classes added yet</p>
+          <button class="btn btn-primary" onclick="openClassModal()">+ Add Class</button>
+        </div>`;
+        return;
+      }
+      grid.innerHTML = classes.map(c => `
+        <div class="card" style="padding:1.25rem;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div>
+              <h3 style="font-weight:700;color:var(--navy);font-size:1.3rem;">Class ${c.name}</h3>
+              <p style="font-size:0.85rem;color:var(--gray-600);margin-top:0.35rem;">
+                Sections: ${(c.sections || []).join(', ') || 'None'}
+              </p>
+            </div>
+            <div>
+              <button class="btn btn-outline" style="padding:0.3rem 0.6rem;font-size:0.8rem;" onclick="editClass('${c.id}')">Edit</button>
+              <button class="btn btn-danger" style="padding:0.3rem 0.6rem;font-size:0.8rem;margin-left:0.3rem;" onclick="deleteClass('${c.id}')">Del</button>
+            </div>
+          </div>
+          <div style="margin-top:1rem;display:flex;flex-wrap:wrap;gap:0.4rem;">
+            ${(c.sections || []).map(sec => `
+              <span style="background:var(--gray-100);padding:0.25rem 0.7rem;border-radius:9999px;font-size:0.8rem;font-weight:600;">
+                ${c.name}-${sec}
+              </span>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openClassModal(id = null) {
+      document.getElementById('classModal').classList.add('active');
+      document.getElementById('classForm').reset();
+      document.getElementById('classEditId').value = '';
+      if (id) {
+        const c = Storage.get('classes').find(x => x.id === id);
+        if (c) {
+          document.getElementById('classEditId').value = c.id;
+          document.getElementById('className').value = c.name;
+          document.getElementById('classSections').value = (c.sections || []).join(', ');
+        }
+      }
+    }
+    function closeClassModal() {
+      document.getElementById('classModal').classList.remove('active');
+    }
+    function editClass(id) { openClassModal(id); }
+    function deleteClass(id) {
+      if (!confirm('Delete this class?')) return;
+      let list = Storage.get('classes').filter(c => c.id !== id);
+      Storage.set('classes', list);
+      toast('Class deleted', 'success');
+      renderClasses();
+    }
+
+    document.getElementById('classForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const id = document.getElementById('classEditId').value;
+      const name = document.getElementById('className').value.trim();
+      const sections = document.getElementById('classSections').value.split(',').map(s => s.trim()).filter(Boolean);
+      let list = Storage.get('classes');
+      if (id) {
+        const idx = list.findIndex(c => c.id === id);
+        if (idx > -1) list[idx] = { ...list[idx], name, sections };
+        toast('Class updated', 'success');
+      } else {
+        list.push({ id: Storage.generateId('CLS'), name, sections });
+        toast('Class added', 'success');
+      }
+      Storage.set('classes', list);
+      closeClassModal();
+      renderClasses();
+    });
+
+    renderClasses();
+  </script>
+</body>
+</html>
