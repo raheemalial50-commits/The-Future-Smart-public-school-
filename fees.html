@@ -12,13 +12,75 @@
   <div class="main-content">
     <header id="topbar" class="topbar"></header>
     <main style="padding:1.5rem;">
-      <div class="card" style="padding:2rem;text-align:center;">
-        <div style="font-size:3rem;margin-bottom:1rem;">💰</div>
-        <h3 style="font-weight:700;color:var(--navy);">Fee Management Module</h3>
-        <p style="color:var(--gray-600);margin-top:0.5rem;max-width:400px;margin-left:auto;margin-right:auto;">
-          Fee Structure, Collect Fee, Payment History, Pending Fees and professional Receipt printing can be fully expanded here.
-        </p>
-        <p style="margin-top:1.5rem;font-size:0.9rem;">WhatsApp support: <strong>0330-4886710</strong></p>
+      <!-- Summary Cards -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.25rem;margin-bottom:1.5rem;">
+        <div class="card stat-card">
+          <div style="font-size:0.85rem;color:var(--gray-600);">Total Collected</div>
+          <div class="stat-value" style="color:var(--success);">Rs 4,85,000</div>
+        </div>
+        <div class="card stat-card">
+          <div style="font-size:0.85rem;color:var(--gray-600);">Pending Fees</div>
+          <div class="stat-value" style="color:var(--danger);">Rs 1,25,000</div>
+        </div>
+        <div class="card stat-card">
+          <div style="font-size:0.85rem;color:var(--gray-600);">This Month</div>
+          <div class="stat-value">Rs 92,500</div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:1.25rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h3 style="font-weight:700;color:var(--navy);">Fee Collection</h3>
+          <button class="btn btn-primary" onclick="toast('Collect Fee form ready for expansion','info')">+ Collect Fee</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Receipt No</th>
+                <th>Student</th>
+                <th>Class</th>
+                <th>Month</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:600;">RCP-1001</td>
+                <td>Ahmed Raza</td>
+                <td>9-A</td>
+                <td>September 2026</td>
+                <td>Rs 4,500</td>
+                <td>Cash</td>
+                <td>05 Sep 2026</td>
+                <td><button class="btn btn-outline" style="padding:0.3rem 0.6rem;font-size:0.8rem;" onclick="window.print()">Print</button></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;">RCP-1002</td>
+                <td>Fatima Khan</td>
+                <td>7-B</td>
+                <td>September 2026</td>
+                <td>Rs 4,200</td>
+                <td>Bank Transfer</td>
+                <td>06 Sep 2026</td>
+                <td><button class="btn btn-outline" style="padding:0.3rem 0.6rem;font-size:0.8rem;" onclick="window.print()">Print</button></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;">RCP-1003</td>
+                <td>Hassan Ali</td>
+                <td>10-A</td>
+                <td>September 2026</td>
+                <td>Rs 5,000</td>
+                <td>Cash</td>
+                <td>08 Sep 2026</td>
+                <td><button class="btn btn-outline" style="padding:0.3rem 0.6rem;font-size:0.8rem;" onclick="window.print()">Print</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </main>
   </div>

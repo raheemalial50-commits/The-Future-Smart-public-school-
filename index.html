@@ -4,68 +4,298 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login • THE FUTURE SMART PUBLIC SCHOOL</title>
-  <link rel="stylesheet" href="css/style.css" />
   <style>
-    body { background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%); min-height: 100vh; display: flex; flex-direction: column; }
-    .login-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
-    .login-card { background: white; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(10,31,68,0.15); overflow: hidden; width: 100%; max-width: 920px; display: grid; grid-template-columns: 1fr; }
-    @media (min-width: 768px) { .login-card { grid-template-columns: 1fr 1fr; } }
-    .login-brand { background: var(--navy); color: white; padding: 2.5rem; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-    .login-form-side { padding: 2.5rem; }
+    :root {
+      --navy: #0A1F44;
+      --gold: #D4A017;
+      --gold-light: #F0C14B;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%); 
+      min-height: 100vh; 
+      display: flex; 
+      flex-direction: column; 
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .login-wrapper { 
+      flex: 1; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      padding: 1.5rem; 
+    }
+    .login-card { 
+      background: white; 
+      border-radius: 1.5rem; 
+      box-shadow: 0 25px 50px -12px rgba(10,31,68,0.18); 
+      overflow: hidden; 
+      width: 100%; 
+      max-width: 960px; 
+      display: grid; 
+      grid-template-columns: 1fr; 
+    }
+    @media (min-width: 800px) { 
+      .login-card { grid-template-columns: 1fr 1.1fr; } 
+    }
+    .login-brand { 
+      background: var(--navy); 
+      color: white; 
+      padding: 2.5rem 2rem; 
+      display: flex; 
+      flex-direction: column; 
+      justify-content: center; 
+      align-items: center; 
+      text-align: center; 
+    }
+    .logo-box {
+      width: 110px;
+      height: 110px;
+      background: linear-gradient(145deg, #0d2a5c, #0A1F44);
+      border: 3px solid var(--gold);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    .logo-box::before {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 8px;
+      background: var(--gold);
+      border-radius: 4px 4px 0 0;
+    }
+    .logo-cap {
+      font-size: 2.2rem;
+      line-height: 1;
+    }
+    .logo-text {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--gold);
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+    .login-form-side { padding: 2.25rem; }
+    .form-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 0.75rem;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .form-input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.15);
+    }
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 0.4rem;
+    }
+    .btn-primary {
+      background: var(--navy);
+      color: white;
+      border: none;
+      border-radius: 0.75rem;
+      padding: 0.85rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover { background: #0d2a5c; }
+    .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+    .error-msg {
+      background: #fef2f2;
+      color: #dc2626;
+      padding: 0.75rem 1rem;
+      border-radius: 0.75rem;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    .bio-btn {
+      flex: 1;
+      padding: 0.9rem 0.5rem;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 0.9rem;
+      background: #f8fafc;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #334155;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .bio-btn:hover {
+      border-color: var(--gold);
+      background: #fffbeb;
+      transform: translateY(-2px);
+    }
+    .bio-btn .icon { font-size: 1.6rem; }
+    
+    /* Biometric Modal */
+    .bio-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 1rem;
+    }
+    .bio-modal.active { display: flex; }
+    .bio-modal-box {
+      background: white;
+      border-radius: 1.25rem;
+      width: 100%;
+      max-width: 420px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+    }
+    .bio-header {
+      background: var(--navy);
+      color: white;
+      padding: 1rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .camera-box {
+      background: #0f172a;
+      aspect-ratio: 4/3;
+      position: relative;
+      overflow: hidden;
+    }
+    .camera-box video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .scan-frame {
+      position: absolute;
+      inset: 15%;
+      border: 3px solid var(--gold);
+      border-radius: 1rem;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,0.35);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 9999px rgba(0,0,0,0.35), 0 0 0 0 rgba(212,160,23,0.4); }
+      50% { box-shadow: 0 0 0 9999px rgba(0,0,0,0.35), 0 0 0 10px rgba(212,160,23,0); }
+    }
+    .finger-area {
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+    }
+    .finger-circle {
+      width: 110px;
+      height: 110px;
+      margin: 0 auto 1rem;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #e9d5ff, #c4b5fd);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      animation: pulse 1.8s infinite;
+    }
   </style>
 </head>
 <body>
   <div class="login-wrapper">
     <div class="login-card">
-      <!-- Brand Side -->
+      <!-- Brand Side with Logo -->
       <div class="login-brand">
-        <div class="logo-circle" style="width:80px;height:80px;font-size:1.75rem;margin-bottom:1.25rem;">FS</div>
-        <h1 style="font-size:1.5rem;font-weight:800;letter-spacing:0.02em;">THE FUTURE SMART</h1>
-        <p style="color:var(--gold);font-size:0.95rem;margin-top:0.25rem;">PUBLIC SCHOOL</p>
-        <p style="margin-top:1.5rem;opacity:0.85;font-size:0.95rem;">Learn Today • Lead Tomorrow</p>
-        <div style="margin-top:2rem;display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;">
-          <span style="background:rgba(255,255,255,0.15);padding:0.35rem 0.75rem;border-radius:9999px;font-size:0.75rem;">📷 Face Attendance</span>
-          <span style="background:rgba(255,255,255,0.15);padding:0.35rem 0.75rem;border-radius:9999px;font-size:0.75rem;">👆 Fingerprint</span>
-          <span style="background:rgba(255,255,255,0.15);padding:0.35rem 0.75rem;border-radius:9999px;font-size:0.75rem;">📝 Leave + Photo</span>
+        <div class="logo-box">
+          <div class="logo-cap">🎓</div>
+          <div class="logo-text">FS</div>
+        </div>
+        <h1 style="font-size:1.45rem;font-weight:800;letter-spacing:0.02em;">THE FUTURE SMART</h1>
+        <p style="color:var(--gold);font-size:0.95rem;margin-top:0.2rem;">PUBLIC SCHOOL</p>
+        <p style="margin-top:1.25rem;opacity:0.85;font-size:0.95rem;">Learn Today • Lead Tomorrow</p>
+        
+        <div style="margin-top:1.75rem;display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;">
+          <span style="background:rgba(255,255,255,0.12);padding:0.35rem 0.7rem;border-radius:9999px;font-size:0.72rem;">📷 Face Login</span>
+          <span style="background:rgba(255,255,255,0.12);padding:0.35rem 0.7rem;border-radius:9999px;font-size:0.72rem;">👆 Fingerprint Login</span>
+          <span style="background:rgba(255,255,255,0.12);padding:0.35rem 0.7rem;border-radius:9999px;font-size:0.72rem;">🔑 Password</span>
         </div>
       </div>
 
       <!-- Form Side -->
       <div class="login-form-side">
-        <h2 style="font-size:1.4rem;font-weight:700;color:var(--navy);">Sign In</h2>
-        <p style="color:var(--gray-600);font-size:0.9rem;margin-top:0.35rem;margin-bottom:1.75rem;">Access the School Management Portal</p>
+        <h2 style="font-size:1.35rem;font-weight:700;color:var(--navy);">Sign In</h2>
+        <p style="color:#64748b;font-size:0.9rem;margin-top:0.3rem;margin-bottom:1.5rem;">Access the School Management Portal</p>
+
+        <div id="errorMsg" class="error-msg"></div>
+
+        <!-- Biometric Login Buttons -->
+        <div style="display:flex;gap:0.75rem;margin-bottom:1.5rem;">
+          <button type="button" class="bio-btn" onclick="startFaceLogin()">
+            <span class="icon">📷</span>
+            <span>Face Login</span>
+          </button>
+          <button type="button" class="bio-btn" onclick="startFingerLogin()">
+            <span class="icon">👆</span>
+            <span>Fingerprint</span>
+          </button>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;">
+          <div style="flex:1;height:1px;background:#e2e8f0;"></div>
+          <span style="font-size:0.8rem;color:#94a3b8;">or login with password</span>
+          <div style="flex:1;height:1px;background:#e2e8f0;"></div>
+        </div>
 
         <form id="loginForm">
-          <div style="margin-bottom:1.1rem;">
+          <div style="margin-bottom:1rem;">
             <label class="form-label">Username or Email</label>
             <input type="text" id="username" class="form-input" placeholder="Enter username" required autocomplete="username" />
           </div>
-          <div style="margin-bottom:1.1rem;">
+          <div style="margin-bottom:1rem;">
             <label class="form-label">Password</label>
             <div style="position:relative;">
               <input type="password" id="password" class="form-input" placeholder="••••••••" required autocomplete="current-password" />
-              <button type="button" id="togglePass" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-600);">👁</button>
+              <button type="button" id="togglePass" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#64748b;font-size:1.1rem;">👁</button>
             </div>
           </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.35rem;">
             <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.875rem;cursor:pointer;">
               <input type="checkbox" id="remember" /> Remember me
             </label>
             <a href="#" style="font-size:0.875rem;color:var(--gold);text-decoration:none;font-weight:500;">Forgot password?</a>
           </div>
-          <button type="submit" class="btn btn-primary" style="width:100%;padding:0.85rem;font-size:1rem;">
+          <button type="submit" id="loginBtn" class="btn-primary">
             Sign In to Portal
           </button>
         </form>
 
-        <div style="margin-top:1.75rem;padding-top:1.25rem;border-top:1px solid var(--gray-200);text-align:center;">
-          <p style="font-size:0.8rem;color:var(--gray-600);">
+        <div style="margin-top:1.5rem;padding-top:1.1rem;border-top:1px solid #e2e8f0;text-align:center;">
+          <p style="font-size:0.8rem;color:#64748b;">
             Support: 
             <a href="https://wa.me/923304886710" target="_blank" style="color:#16a34a;font-weight:600;text-decoration:none;">
               WhatsApp 0330-4886710
             </a>
           </p>
-          <div style="margin-top:1rem;font-size:0.75rem;color:var(--gray-600);background:var(--gray-50);padding:0.75rem;border-radius:0.75rem;">
+          <div style="margin-top:0.9rem;font-size:0.72rem;color:#64748b;background:#f8fafc;padding:0.7rem;border-radius:0.75rem;">
             <strong>Sample Logins:</strong><br>
             admin / admin123 &nbsp;|&nbsp; teacher / teacher123<br>
             principal / principal123 &nbsp;|&nbsp; accountant / account123
@@ -75,30 +305,187 @@
     </div>
   </div>
 
-  <script src="js/storage.js"></script>
-  <script src="js/auth.js"></script>
-  <script>
-    // Redirect if already logged in
-    if (Auth.isLoggedIn()) {
-      window.location.href = 'dashboard.html';
-    }
+  <!-- Face Login Modal -->
+  <div id="faceModal" class="bio-modal">
+    <div class="bio-modal-box">
+      <div class="bio-header">
+        <h3 style="font-weight:700;font-size:1rem;">Face Recognition Login</h3>
+        <button onclick="closeBioModal()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:1.1rem;">✕</button>
+      </div>
+      <div class="camera-box">
+        <video id="faceVideo" autoplay playsinline muted></video>
+        <div id="faceFrame" class="scan-frame" style="display:none;"></div>
+      </div>
+      <div style="padding:1.25rem;text-align:center;">
+        <p id="faceStatus" style="color:#475569;font-size:0.9rem;">Starting camera...</p>
+        <div id="faceResult" style="display:none;margin-top:0.75rem;">
+          <div style="font-size:2.5rem;color:#16a34a;">✓</div>
+          <p style="font-weight:700;color:#16a34a;font-size:1.1rem;margin-top:0.35rem;">Face Verified</p>
+          <p id="faceUser" style="color:#0A1F44;font-weight:600;margin-top:0.25rem;"></p>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  <!-- Fingerprint Login Modal -->
+  <div id="fingerModal" class="bio-modal">
+    <div class="bio-modal-box">
+      <div class="bio-header">
+        <h3 style="font-weight:700;font-size:1rem;">Fingerprint Login</h3>
+        <button onclick="closeBioModal()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:1.1rem;">✕</button>
+      </div>
+      <div class="finger-area">
+        <div class="finger-circle" id="fingerIcon">👆</div>
+        <p id="fingerStatus" style="color:#475569;font-size:0.95rem;">Place your finger on the scanner...</p>
+        <div id="fingerResult" style="display:none;margin-top:1rem;">
+          <div style="font-size:2.5rem;color:#16a34a;">✓</div>
+          <p style="font-weight:700;color:#16a34a;font-size:1.1rem;margin-top:0.35rem;">Fingerprint Verified</p>
+          <p id="fingerUser" style="color:#0A1F44;font-weight:600;margin-top:0.25rem;"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==================== USERS ====================
+    function initUsers() {
+      if (!localStorage.getItem('users')) {
+        const users = [
+          { id: 'U1', username: 'admin', password: 'admin123', name: 'System Admin', role: 'admin' },
+          { id: 'U2', username: 'principal', password: 'principal123', name: 'Principal Office', role: 'principal' },
+          { id: 'U3', username: 'teacher', password: 'teacher123', name: 'Mr. Imran Khan', role: 'teacher' },
+          { id: 'U4', username: 'accountant', password: 'account123', name: 'Accounts Office', role: 'accountant' }
+        ];
+        localStorage.setItem('users', JSON.stringify(users));
+      }
+    }
+    initUsers();
+
+    // Already logged in?
+    try {
+      if (localStorage.getItem('currentUser')) {
+        window.location.href = 'dashboard.html';
+      }
+    } catch(e) {}
+
+    // Password toggle
     document.getElementById('togglePass').addEventListener('click', function() {
       const input = document.getElementById('password');
       input.type = input.type === 'password' ? 'text' : 'password';
     });
 
+    // Normal password login
     document.getElementById('loginForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value;
-      const result = Auth.login(username, password);
-      if (result.success) {
-        window.location.href = 'dashboard.html';
-      } else {
-        alert(result.message);
-      }
+      const errorEl = document.getElementById('errorMsg');
+      const btn = document.getElementById('loginBtn');
+
+      errorEl.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = 'Signing in...';
+
+      setTimeout(function() {
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const user = users.find(u => (u.username === username || u.email === username) && u.password === password);
+
+        if (user) {
+          localStorage.setItem('currentUser', JSON.stringify({
+            id: user.id, name: user.name, role: user.role, username: user.username
+          }));
+          window.location.href = 'dashboard.html';
+        } else {
+          errorEl.textContent = 'Invalid username or password';
+          errorEl.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = 'Sign In to Portal';
+        }
+      }, 400);
     });
+
+    // ==================== FACE LOGIN ====================
+    let faceStream = null;
+
+    function startFaceLogin() {
+      document.getElementById('faceModal').classList.add('active');
+      document.getElementById('faceStatus').textContent = 'Starting camera...';
+      document.getElementById('faceResult').style.display = 'none';
+      document.getElementById('faceFrame').style.display = 'none';
+
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          faceStream = stream;
+          const video = document.getElementById('faceVideo');
+          video.srcObject = stream;
+          document.getElementById('faceFrame').style.display = 'block';
+          document.getElementById('faceStatus').textContent = 'Looking for face... Please look at the camera';
+
+          // Simulate successful face recognition
+          setTimeout(() => {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const user = users[2]; // teacher as example, or random
+            completeBioLogin(user, 'Face');
+          }, 2600);
+        })
+        .catch(() => {
+          document.getElementById('faceStatus').textContent = 'Camera access denied. Please allow camera.';
+        });
+    }
+
+    // ==================== FINGERPRINT LOGIN ====================
+    function startFingerLogin() {
+      document.getElementById('fingerModal').classList.add('active');
+      document.getElementById('fingerStatus').textContent = 'Place your finger on the scanner...';
+      document.getElementById('fingerResult').style.display = 'none';
+      document.getElementById('fingerIcon').style.animation = 'pulse 1.5s infinite';
+
+      // Simulate successful fingerprint
+      setTimeout(() => {
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const user = users[0]; // admin as example
+        completeBioLogin(user, 'Fingerprint');
+      }, 2200);
+    }
+
+    function completeBioLogin(user, method) {
+      // Stop camera if running
+      if (faceStream) {
+        faceStream.getTracks().forEach(t => t.stop());
+        faceStream = null;
+      }
+
+      // Show success
+      if (method === 'Face') {
+        document.getElementById('faceStatus').textContent = '';
+        document.getElementById('faceResult').style.display = 'block';
+        document.getElementById('faceUser').textContent = user.name + ' (' + user.role + ')';
+        document.getElementById('faceFrame').style.display = 'none';
+      } else {
+        document.getElementById('fingerStatus').textContent = '';
+        document.getElementById('fingerResult').style.display = 'block';
+        document.getElementById('fingerUser').textContent = user.name + ' (' + user.role + ')';
+        document.getElementById('fingerIcon').style.animation = 'none';
+      }
+
+      // Save session and redirect
+      localStorage.setItem('currentUser', JSON.stringify({
+        id: user.id, name: user.name, role: user.role, username: user.username, loginMethod: method
+      }));
+
+      setTimeout(() => {
+        window.location.href = 'dashboard.html';
+      }, 1200);
+    }
+
+    function closeBioModal() {
+      if (faceStream) {
+        faceStream.getTracks().forEach(t => t.stop());
+        faceStream = null;
+      }
+      document.getElementById('faceModal').classList.remove('active');
+      document.getElementById('fingerModal').classList.remove('active');
+    }
   </script>
 </body>
 </html>
